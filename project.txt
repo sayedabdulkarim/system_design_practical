@@ -1,0 +1,4 @@
+Chat App:     Real-time, messaging, presence
+  URL Shortener: Hashing, collision, analytics
+  Twitter:      Feed ranking, fan-out on read/write
+  File Storage: Chunking, deduplication, CDN
