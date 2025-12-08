@@ -20,6 +20,12 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Log every request with port
+app.use((req, res, next) => {
+  console.log(`[Server:${process.env.PORT}] ${req.method} ${req.url}`);
+  next();
+});
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB Connected'))
@@ -29,14 +35,19 @@ mongoose.connect(process.env.MONGODB_URI)
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Basic route
+// Basic route - shows which server is handling
 app.get('/', (req, res) => {
-  res.json({ message: 'Chat Server Running' });
+  res.json({ message: 'Chat Server Running', port: process.env.PORT });
+});
+
+// Health check for load balancer
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', port: process.env.PORT });
 });
 
 // Socket.io connection
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log(`[Server:${process.env.PORT}] User connected:`, socket.id);
 
   // Join room
   socket.on('join', (userId) => {
@@ -63,5 +74,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

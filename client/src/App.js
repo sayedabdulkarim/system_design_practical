@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import Login from './Login';
 import Chat from './Chat';
 
-const socket = io('http://localhost:5001');
+const socket = io('http://localhost');  // Port 80 - Nginx Load Balancer
 
 function App() {
   const [user, setUser] = useState(null);

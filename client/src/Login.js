@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const API = 'http://localhost:5001/api';
+const API = 'http://localhost/api';  // Port 80 - Nginx
 
 function Login({ onLogin }) {
   const [isRegister, setIsRegister] = useState(false);
