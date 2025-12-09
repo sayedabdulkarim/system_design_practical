@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { createClient } = require('redis');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,7 +17,28 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
+// ============ REDIS SETUP ============
+// Publisher - messages bhejne ke liye
+const pubClient = createClient();
+// Subscriber - messages sunne ke liye
+const subClient = createClient();
+
+// Connect Redis
+(async () => {
+  await pubClient.connect();
+  await subClient.connect();
+  console.log(`[Server:${process.env.PORT}] Redis Connected`);
+
+  // Subscribe to 'chat' channel
+  await subClient.subscribe('chat', (message) => {
+    // Jab Redis se message aaye, sab local users ko bhejo
+    const data = JSON.parse(message);
+    console.log(`[Server:${process.env.PORT}] Redis message received, broadcasting to local users`);
+    io.emit('newMessage', data);
+  });
+})();
+
+// ============ MIDDLEWARE ============
 app.use(cors());
 app.use(express.json());
 
@@ -45,7 +67,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', port: process.env.PORT });
 });
 
-// Socket.io connection
+// ============ SOCKET.IO ============
 io.on('connection', (socket) => {
   console.log(`[Server:${process.env.PORT}] User connected:`, socket.id);
 
@@ -55,10 +77,11 @@ io.on('connection', (socket) => {
     console.log(`User ${userId} joined`);
   });
 
-  // Handle message
-  socket.on('sendMessage', (data) => {
-    // Broadcast to all users
-    io.emit('newMessage', data);
+  // Handle message - PUBLISH TO REDIS
+  socket.on('sendMessage', async (data) => {
+    console.log(`[Server:${process.env.PORT}] Message received, publishing to Redis`);
+    // Publish to Redis - sab servers ko milega
+    await pubClient.publish('chat', JSON.stringify(data));
   });
 
   // Typing indicator

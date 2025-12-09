@@ -1,0 +1,156 @@
+# System Design - Interview Questions & Answers
+
+=====================================
+ALL QUESTIONS AT A GLANCE
+=====================================
+
+Q1.  ip_hash aur Redis mein kya difference hai?
+Q2.  Stateless vs Stateful app kya hai?
+Q3.  Redis kab chahiye, kab nahi?
+Q4.  Load Balancer kya karta hai?
+Q5.  Sticky Session kya hai?
+Q6.  Pub/Sub kya hai?
+Q7.  PM2 kya hai? Kyun use karte?
+Q8.  IP kab change hota hai?
+Q9.  Nginx config mein kya hota hai?
+Q10. Complete Architecture kya hai?
+
+=====================================
+ANSWERS
+=====================================
+
+
+=====================================
+Q1. ip_hash aur Redis mein kya difference hai?
+=====================================
+
+ip_hash → Socket connection stable rakhta hai (same user → same server)
+Redis   → Messages sync karta hai (sab servers ko msg bhejta)
+
+Dono chahiye! ip_hash ke bina socket tootega, Redis ke bina msg sync nahi hoga.
+
+
+=====================================
+Q2. Stateless vs Stateful app kya hai?
+=====================================
+
+Stateless = Server kuch yaad nahi rakhta (har request independent)
+            Example: REST API, Todo CRUD, E-commerce products
+
+Stateful  = Server state maintain karta hai (kaun online, kaun typing)
+            Example: Chat app, Video call, Gaming
+
+
+=====================================
+Q3. Redis kab chahiye, kab nahi?
+=====================================
+
+Chahiye:     Real-time apps (Socket.io, WebSocket)
+Nahi chahiye: REST API (normal CRUD operations)
+
+Rule: Socket.io use kar raha → Redis lagao
+      REST API hai sirf     → Mat lagao
+
+
+=====================================
+Q4. Load Balancer kya karta hai?
+=====================================
+
+Traffic distribute karta hai multiple servers mein.
+
+User → Nginx (Load Balancer) → Server 1 / Server 2 / Server 3
+
+Algorithms:
+- Round Robin: 1 → 2 → 3 → 1 → 2 → 3
+- ip_hash: Same IP → Same server (hamesha)
+- Least Connections: Kam load wale server ko bhejo
+
+
+=====================================
+Q5. Sticky Session kya hai?
+=====================================
+
+Sticky = Chipakna
+User ek baar jis server pe gaya, hamesha usi pe jayega.
+
+Without Sticky: Request 1 → Server 1, Request 2 → Server 2 (socket toot gaya!)
+With Sticky:    Request 1 → Server 1, Request 2 → Server 1 (stable!)
+
+WebSocket ke liye zaruri hai.
+
+
+=====================================
+Q6. Pub/Sub kya hai?
+=====================================
+
+Pub = Publish (msg bhejo)
+Sub = Subscribe (msg suno)
+
+Server 5001: message publish kiya → Redis
+Redis: sab subscribers ko bheja → Server 5002, 5003
+Result: Sab jagah msg pahuncha!
+
+YouTube channel jaisa - video upload (publish) → subscribers ko notification (subscribe)
+
+
+=====================================
+Q7. PM2 kya hai? Kyun use karte?
+=====================================
+
+PM2 = Process Manager for Node.js
+
+Benefits:
+- Multiple servers ek command se (pm2 start ecosystem.config.js)
+- Auto restart (crash hone pe khud restart)
+- Background mein chale (terminal band karo, server chalta rahe)
+- Logs ek jagah (pm2 logs)
+
+
+=====================================
+Q8. IP kab change hota hai?
+=====================================
+
+WiFi change = IP change
+Laptop change = IP same (agar same WiFi)
+
+Example:
+- Ghar ka WiFi → IP: 192.168.1.10
+- Office WiFi → IP: 10.0.0.50 (changed!)
+- Friend ka laptop, ghar ka WiFi → IP: 192.168.1.10 (same!)
+
+Network deta hai IP, device nahi!
+
+
+=====================================
+Q9. Nginx config mein kya hota hai?
+=====================================
+
+upstream chat_servers {
+    ip_hash;                    # Sticky session
+    server 127.0.0.1:5001;      # Server 1
+    server 127.0.0.1:5002;      # Server 2
+    server 127.0.0.1:5003;      # Server 3
+}
+
+server {
+    listen 80;                  # Nginx port 80 pe sune
+    location / {
+        proxy_pass http://chat_servers;  # Traffic upstream ko bheje
+    }
+}
+
+
+=====================================
+Q10. Complete Architecture kya hai?
+=====================================
+
+User → Nginx (Load Balancer, ip_hash) → Server 5001/5002/5003
+                                              ↓
+                                           Redis (Pub/Sub)
+                                              ↓
+                                        Sab servers sync
+
+- Nginx: Traffic distribute + sticky session
+- PM2: Multiple servers manage
+- Redis: Cross-server message sync
+- MongoDB: Data storage
