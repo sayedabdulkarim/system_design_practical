@@ -6,3 +6,24 @@ Chat App:     Real-time, messaging, presence
 
 
   create a diagram to show different design concepts
+
+
+
+   ✅ PM2 - 3 servers (5001, 5002, 5003)
+  ✅ Nginx - Load balancer
+  ✅ ip_hash - Same user → Same server (sticky session)
+  ✅ Problem samjha - Different servers pe users ka msg sync nahi hota
+
+
+   Tera Roadmap (systemDesignTodo.txt):
+
+  | Phase | Topic                        | Status    |
+  |-------|------------------------------|-----------|
+  | 1     | Basic Chat App               | ✅ Done    |
+  | 2     | Load Balancing (Nginx + PM2) | ✅ Done    |
+  | 3     | Redis Caching & Pub/Sub      | ⏳ Next    |
+  | 4     | Database Scaling (MongoDB)   | ❌ Pending |
+  | 5     | Message Queue (RabbitMQ)     | ❌ Pending |
+  | 6     | Microservices (Optional)     | ❌ Pending |
+  | 7     | Security & Auth              | ❌ Pending |
+  | 8     | Documentation                | ❌ Pending |
