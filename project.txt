@@ -21,7 +21,7 @@ Chat App:     Real-time, messaging, presence
   |-------|------------------------------|-----------|
   | 1     | Basic Chat App               | ✅ Done    |
   | 2     | Load Balancing (Nginx + PM2) | ✅ Done    |
-  | 3     | Redis Caching & Pub/Sub      | ⏳ Next    |
+  | 3     | Redis Caching & Pub/Sub      | ✅ Done    |
   | 4     | Database Scaling (MongoDB)   | ❌ Pending |
   | 5     | Message Queue (RabbitMQ)     | ❌ Pending |
   | 6     | Microservices (Optional)     | ❌ Pending |
